@@ -1,0 +1,44 @@
+<svg width="200" height="40" viewBox="0 0 200 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Büyüteç ikonu -->
+  <g transform="translate(5, 5)">
+    <!-- Büyüteç çerçevesi -->
+    <circle cx="15" cy="15" r="12" stroke="#ffffff" stroke-width="2.5" fill="none"/>
+    
+    <!-- Hedef halkaları -->
+    <circle cx="15" cy="15" r="8" stroke="#e5e7eb" stroke-width="1.5" fill="none"/>
+    <circle cx="15" cy="15" r="4" stroke="#ffffff" stroke-width="1" fill="none"/>
+    
+    <!-- Hedef noktaları -->
+    <circle cx="15" cy="7" r="1.5" fill="#ffffff"/>
+    <circle cx="15" cy="23" r="1.5" fill="#ffffff"/>
+    <circle cx="7" cy="15" r="1.5" fill="#ffffff"/>
+    <circle cx="23" cy="15" r="1.5" fill="#ffffff"/>
+    
+    <!-- Bağlantı çizgileri -->
+    <line x1="15" y1="8.5" x2="15" y2="10.5" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="2,2"/>
+    <line x1="15" y1="19.5" x2="15" y2="21.5" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="2,2"/>
+    <line x1="8.5" y1="15" x2="10.5" y2="15" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="2,2"/>
+    <line x1="19.5" y1="15" x2="21.5" y2="15" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="2,2"/>
+    
+    <!-- Kişi silüeti -->
+    <g transform="translate(15, 15)">
+      <!-- Baş -->
+      <ellipse cx="0" cy="-2" rx="2" ry="2.5" fill="#ffffff"/>
+      <!-- Vücut -->
+      <path d="M-3 0 L3 0 L2 8 L-2 8 Z" fill="#ffffff"/>
+      <!-- Kollar -->
+      <path d="M-3 2 L-5 4 L-4 5 L-2 3 Z" fill="#ffffff"/>
+      <path d="M3 2 L5 4 L4 5 L2 3 Z" fill="#ffffff"/>
+      <!-- Rozet -->
+      <circle cx="-1.5" cy="3" r="0.8" fill="#1e40af"/>
+    </g>
+    
+    <!-- Büyüteç sapı -->
+    <path d="M25 25 L32 32" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  
+  <!-- JOB HUNTER yazısı -->
+  <text x="50" y="25" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#ffffff" font-style="italic">
+    JOB HUNTER
+  </text>
+</svg>
