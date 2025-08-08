@@ -5,6 +5,7 @@ import cors from 'cors';
 import authRoutes from './routes/authRoute.js';
 import userRoutes from './routes/userRoute.js';
 import jobApplicationRoutes from './routes/jobApplicationRoute.js';
+import aiRoutes from './routes/aiRoute.js';
 
 const app = express();
 dotenv.config();
@@ -35,6 +36,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/job-applications', jobApplicationRoutes);
+app.use('/api/ai', aiRoutes);
 
 const PORT = process.env.PORT || 5000;
 
