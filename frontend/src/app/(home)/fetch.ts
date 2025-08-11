@@ -15,6 +15,14 @@ interface JobApplication {
   analysis_percentage?: number; // Yeni column
 }
 
+// AI analiz için interface
+interface AIAnalysisResponse {
+  success: boolean;
+  percentage: number;
+  analysis_result: string;
+  message: string;
+}
+
 export async function getJobApplications(): Promise<JobApplication[]> {
   try {
     const response = await fetch(`${API_BASE_URL}/job-applications`, {
@@ -117,5 +125,49 @@ export async function getJobApplicationsStats() {
       companiesCount: 0,
       recentApplications: 0,
     };
+  }
+}
+
+// Cookie'den userId çek
+function getUserIdFromCookie(): string | null {
+  const cookies = document.cookie.split(';');
+  for (const cookie of cookies) {
+    const [name, value] = cookie.trim().split('=');
+    if (name === 'userId') {
+      return value;
+    }
+  }
+  return null;
+}
+
+// AI analiz fonksiyonu
+export async function analyzeJobApplication(jobId: string): Promise<AIAnalysisResponse> {
+  try {
+    const userId = getUserIdFromCookie();
+    if (!userId) {
+      throw new Error('Kullanıcı ID bulunamadı');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/ai/analyze`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ userId, jobId }),
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        window.location.href = '/auth/sign-in';
+        throw new Error('Oturum süresi doldu');
+      }
+      throw new Error('AI analizi yapılamadı');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('AI analiz hatası:', error);
+    throw error;
   }
 }

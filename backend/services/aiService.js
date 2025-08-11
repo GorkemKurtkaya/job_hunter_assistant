@@ -52,46 +52,57 @@ async function analyzeJobFit(userId, jobId) {
 
 // AI analizi fonksiyonu
 async function performAIAnalysis(profile, jobDescription) {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash",
+    generationConfig: {
+      temperature: 0,
+      topP: 1,
+      topK: 1,
+      maxOutputTokens: 64,
+    },
+  });
 
   const prompt = `
-Sen bir iş uyum analiz uzmanısın. Aşağıdaki kişisel bilgileri ve iş ilanını analiz ederek, başarı olasılığını hesapla.
-
-KİŞİSEL BİLGİLER:
-${JSON.stringify(profile, null, 2)}
-
-İŞ İLANI AÇIKLAMASI:
-${jobDescription}
-
-GÖREV:
-Bu iş ilanı ile kullanıcının uyum yüzdesini hesapla. Şu kriterleri değerlendir:
-
-1. TEKNOLOJİ UYUMU (%40 ağırlık):
-   - Kullanıcının bildiği teknolojiler vs. iş ilanında istenenler
-   - Her eşleşen teknoloji +10 puan
-   - Her eksik teknoloji -5 puan
-
-2. DENEYİM SEVİYESİ (%30 ağırlık):
-   - İstenen deneyim yılı vs. kullanıcının deneyimi
-   - Staj deneyimi de değerli, ama tam zamanlı deneyimden daha düşük
-   - Proje deneyimleri de hesaba kat
-
-3. EĞİTİM UYUMU (%20 ağırlık):
-   - Mühendislik eğitimi varsa +20 puan
-   - Bilgisayar mühendisliği varsa +10 puan ekstra
-   - Diğer mühendislik +5 puan
-
-4. GENEL BECERİ UYUMU (%10 ağırlık):
-   - Mikroservis, Docker gibi modern teknolojiler
-   - Proje yönetimi becerileri
-
-ÖNEMLİ: Staj deneyimini de değerli say, sadece tam zamanlı deneyim arama. Teknoloji uyumuna daha fazla ağırlık ver.
-
-SADECE şu formatta yanıt ver:
-Yüzdelik: %XX
-
-Not: Sadece sayı formatında yanıt ver, açıklama ekleme.
-`;
+  Rol: Sen deterministik bir iş uyum puanlayıcısın. Aynı girdiler için her zaman aynı çıktıyı üret. Aşağıdaki kuralları HARFİYEN uygula.
+  
+  KİŞİSEL BİLGİLER (JSON):
+  ${JSON.stringify(profile, null, 2)}
+  
+  İŞ İLANI AÇIKLAMASI:
+  ${jobDescription}
+  
+  AMAÇ: 0-100 arasında bir uyum yüzdesi üret.
+  
+  PUANLAMA ALGORİTMASI (kesin kurallar):
+  1) TEKNOLOJİ UYUMU (40 puan)
+     - İlandan en fazla 8 temel teknoloji/araç çıkar (gerekliler tercihlere göre önceliklidir).
+     - Eşleşme kuralları: gerekliler profilde varsa +10, yoksa -5; tercihler profilde varsa +5, yoksa 0.
+     - Eş anlam/sunum normalizasyonu örnekleri: node=node.js, js=javascript, ts=typescript, react=react.js, postgres=postgresql, dotnet=.net, cs=c#, k8s=kubernetes.
+     - Bu bölüm puanını 0 ile 40 arasına kırp.
+  
+  2) DENEYİM (30 puan)
+     - Kullanıcı toplam yılı = tam zamanlı (1.0 katsayı) + staj (0.5) + freelance/part-time (0.75).
+     - İlanda yıl belirtilmişse: puan = 30 * min(kullanıcı_yılı / istenen_yıl, 1).
+     - İlanda yıl yoksa kıdem ifadesine göre hedef yıl: junior=1, mid=3, senior=5; yoksa hedef yıl=3.
+  
+  3) EĞİTİM (20 puan)
+     - Bilgisayar/Yazılım Müh.: 20
+     - Diğer mühendislik: 15
+     - STEM (matematik/fizik/istatistik vb.): 10
+     - Diğer: 0
+  
+  4) GENEL BECERİLER (10 puan)
+     - Modern teknolojiler ve pratikler (ör. microservices, docker, kubernetes, ci/cd, aws/azure/gcp, terraform), proje yönetimi (scrum/jira): her biri +2, en çok 10.
+  
+  KURALLAR:
+  - Veri yoksa tahmin etme; eksik alanlar 0 puan sayılır.
+  - İyimser tamamlama yapma; sadece veriye dayalı puan ver.
+  - Ara adımları açıklama, sadece sonuç ver.
+  - Nihai puan = (1)+(2)+(3)+(4), 0-100 aralığına kırp, en yakın 5'e yuvarla.
+  
+  ÇIKTI FORMATı (tek satır, başka metin ekleme):
+  Yüzdelik: %NN
+  `;
 
   const result = await model.generateContent(prompt);
   return result.response.text();

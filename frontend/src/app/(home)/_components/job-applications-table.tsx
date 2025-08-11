@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { getJobApplications, updateJobApplication, deleteJobApplication } from '../fetch';
-import { ChevronDown, ChevronRight, Edit, Trash2, BarChart3, X } from 'lucide-react';
+import { getJobApplications, updateJobApplication, deleteJobApplication, analyzeJobApplication } from '../fetch';
+import { ChevronDown, ChevronRight, Edit, Trash2, BarChart3, X, RefreshCw } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import { ConfirmationModal } from './confirmation-modal';
 
@@ -16,6 +16,7 @@ interface JobApplication {
   created_at: string;
   updated_at: string;
   status?: string;
+  analysis_percentage?: number;
 }
 
 export function JobApplicationsTable() {
@@ -86,13 +87,24 @@ export function JobApplicationsTable() {
     toast.success('Tüm detaylar kapatıldı!');
   };
 
-  const handleAnalyze = (application: JobApplication) => {
-    const loadingToast = toast.loading('Analiz ediliyor...');
+  const handleAnalyze = async (application: JobApplication) => {
+    const loadingToast = toast.loading('AI analizi yapılıyor...');
 
-    // Simüle edilmiş analiz işlemi
-    setTimeout(() => {
-      toast.success(`${application.position} pozisyonu analiz edildi!`, { id: loadingToast });
-    }, 2000);
+    try {
+      const result = await analyzeJobApplication(application.id);
+      
+      // Başarılı analiz sonrası local state'i güncelle
+      setApplications(prev => prev.map(app => 
+        app.id === application.id 
+          ? { ...app, analysis_percentage: result.percentage }
+          : app
+      ));
+
+      toast.success(`${application.position} pozisyonu analiz edildi! Uyum: %${result.percentage}`, { id: loadingToast });
+    } catch (error) {
+      toast.error('Analiz sırasında hata oluştu!', { id: loadingToast });
+      console.error('Analiz hatası:', error);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -170,6 +182,9 @@ export function JobApplicationsTable() {
                 <th className="min-w-[120px] py-4 px-4 font-medium text-black dark:text-white">
                   Durum
                 </th>
+                <th className="min-w-[100px] py-4 px-4 font-medium text-black dark:text-white">
+                  Uyum
+                </th>
                 <th className="py-4 px-4 font-medium text-black dark:text-white">
                   İşlemler
                 </th>
@@ -202,17 +217,61 @@ export function JobApplicationsTable() {
                       </span>
                     </td>
                     <td className="py-4 px-4 dark:border-gray-700">
+                      {application.analysis_percentage !== undefined && application.analysis_percentage !== null ? (
+                        <div className="flex items-center space-x-2">
+                          <span className={`text-lg font-bold ${
+                            application.analysis_percentage < 30 
+                              ? 'text-red-600 dark:text-red-400' 
+                              : application.analysis_percentage < 50 
+                              ? 'text-orange-600 dark:text-orange-400'
+                              : application.analysis_percentage < 70 
+                              ? 'text-yellow-600 dark:text-yellow-500'
+                              : application.analysis_percentage < 85 
+                              ? 'text-blue-600 dark:text-blue-400'
+                              : 'text-green-600 dark:text-green-400'
+                          }`}>
+                            %{application.analysis_percentage}
+                          </span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAnalyze(application);
+                            }}
+                            className="p-1 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors duration-200"
+                            title="Tekrar Analiz Et"
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 dark:text-gray-500 text-sm">Analiz edilmedi</span>
+                      )}
+                    </td>
+                    <td className="py-4 px-4 dark:border-gray-700">
                       <div className="flex items-center space-x-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAnalyze(application);
-                          }}
-                          className="flex items-center space-x-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200"
-                        >
-                          <BarChart3 size={16} />
-                          <span>Analiz Et</span>
-                        </button>
+                        {!application.analysis_percentage ? (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAnalyze(application);
+                            }}
+                            className="flex items-center space-x-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200"
+                          >
+                            <BarChart3 size={16} />
+                            <span>Analiz Et</span>
+                          </button>
+                        ) : (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAnalyze(application);
+                            }}
+                            className="flex items-center space-x-1 bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200"
+                          >
+                            <RefreshCw size={16} />
+                            <span>Tekrar Analiz Et</span>
+                          </button>
+                        )}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -248,7 +307,7 @@ export function JobApplicationsTable() {
                   </tr>
                   {expandedRows.has(application.id) && (
                     <tr>
-                      <td colSpan={5} className="px-4 py-3 bg-gray-50 dark:bg-gray-800">
+                      <td colSpan={6} className="px-4 py-3 bg-gray-50 dark:bg-gray-800">
                         <div className="space-y-3">
                           <div>
                             <h6 className="font-medium text-black dark:text-white mb-2">
