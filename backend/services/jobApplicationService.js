@@ -20,6 +20,16 @@ const getJobApplications = async (userId = null) => {
   return data;
 };
 
+const getJobApplication = async (id) => {
+  const { data, error } = await supabase
+    .from("job_applications")
+    .select("*")
+    .eq("id", id)
+    .single();
+  if (error) throw new Error(error.message);
+  return data;
+}
+
 // Başvuru güncelle
 const updateJobApplication = async (id, updateData) => {
   const { data, error } = await supabase
@@ -46,5 +56,6 @@ export {
   addJobApplication,
   getJobApplications,
   updateJobApplication,
-  deleteJobApplication
+  deleteJobApplication,
+  getJobApplication
 };

@@ -2,7 +2,8 @@ import {
   addJobApplication,
   getJobApplications,
   updateJobApplication,
-  deleteJobApplication
+  deleteJobApplication,
+  getJobApplication
 } from "../services/jobApplicationService.js";
 
 // Başvuru ekle
@@ -22,6 +23,20 @@ const listJobApplications = async (req, res) => {
     const userId = req.query.user_id || null;
     const jobApps = await getJobApplications(userId);
     res.status(200).json({ job_applications: jobApps });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Tek başvuru getir
+const getIdByJobApplication = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const jobApp = await getJobApplication(id);
+    if (!jobApp) {
+      return res.status(404).json({ error: "Başvuru bulunamadı" });
+    }
+    res.status(200).json({ job_application: jobApp });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -54,5 +69,6 @@ export {
   createJobApplication,
   listJobApplications,
   editJobApplication,
-  removeJobApplication
+  removeJobApplication,
+  getIdByJobApplication
 };
