@@ -1,7 +1,7 @@
 "use client";
 
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { CameraIcon, Mail, Phone, Globe, MapPin, Calendar, Award, GraduationCap, Briefcase, ExternalLink, Edit, X, Plus, Trash2, Save } from "lucide-react";
 import { SocialAccounts } from "./_components/social-accounts";
 import { 
@@ -114,11 +114,42 @@ export default function Page() {
     }
   }, [mounted, isLoading, isAuthenticated, router]);
 
+  const loadProfile = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await getUserProfile();
+      if (data) {
+        setProfile(data);
+        // Edit form'u da güncelle
+        setEditForm({
+          full_name: data.full_name,
+          phone: data.phone,
+          github_url: data.github_url,
+          linkedin_url: data.linkedin_url,
+          personal_website: data.personal_website || '',
+          summary: data.summary,
+          skills: [...data.skills],
+          soft_skills: [...data.soft_skills],
+        });
+        // Input state'lerini de doldur
+        setSkillsInput(data.skills.join(', '));
+        setSoftSkillsInput(data.soft_skills.join(', '));
+      } else {
+        setError('Profil yüklenemedi');
+      }
+    } catch (err) {
+      setError('Profil yüklenirken hata oluştu');
+      toast.error('Profil yüklenirken hata oluştu');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (mounted && isAuthenticated) {
       loadProfile();
     }
-  }, [mounted, isAuthenticated]);
+  }, [mounted, isAuthenticated, loadProfile]);
 
   // Server-side rendering sırasında loading göster
   if (!mounted || !isInitialized) {
@@ -178,36 +209,7 @@ export default function Page() {
     );
   }
 
-  const loadProfile = async () => {
-    try {
-      setLoading(true);
-      const data = await getUserProfile();
-      if (data) {
-        setProfile(data);
-        // Edit form'u da güncelle
-                setEditForm({
-          full_name: data.full_name,
-          phone: data.phone,
-          github_url: data.github_url,
-          linkedin_url: data.linkedin_url,
-          personal_website: data.personal_website || '',
-          summary: data.summary,
-          skills: [...data.skills],
-          soft_skills: [...data.soft_skills],
-        });
-        // Input state'lerini de doldur
-        setSkillsInput(data.skills.join(', '));
-        setSoftSkillsInput(data.soft_skills.join(', '));
-    } else {
-        setError('Profil yüklenemedi');
-      }
-    } catch (err) {
-      setError('Profil yüklenirken hata oluştu');
-      toast.error('Profil yüklenirken hata oluştu');
-    } finally {
-      setLoading(false);
-    }
-  };
+
 
   // CRUD işlemlerinden sonra sayfa yenileme fonksiyonu
   const refreshProfile = async () => {
