@@ -19,6 +19,8 @@ import {
 } from "./fetch";
 import toast, { Toaster } from 'react-hot-toast';
 import Swal from 'sweetalert2';
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 interface UserProfile {
   id: string;
@@ -39,10 +41,13 @@ interface UserProfile {
 }
 
 export default function Page() {
+  const { isAuthenticated, isLoading, isInitialized } = useAuth();
+  const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [editForm, setEditForm] = useState({
     full_name: '',
     phone: '',
@@ -97,9 +102,81 @@ export default function Page() {
     description: '',
   });
 
+  // Client-side mounting kontrolü
   useEffect(() => {
-    loadProfile();
+    setMounted(true);
   }, []);
+
+  // Authentication kontrolü
+  useEffect(() => {
+    if (mounted && !isLoading && !isAuthenticated) {
+      router.push('/auth/sign-in');
+    }
+  }, [mounted, isLoading, isAuthenticated, router]);
+
+  useEffect(() => {
+    if (mounted && isAuthenticated) {
+      loadProfile();
+    }
+  }, [mounted, isAuthenticated]);
+
+  // Server-side rendering sırasında loading göster
+  if (!mounted || !isInitialized) {
+    return (
+      <div className="mx-auto w-full max-w-[970px]">
+        <Breadcrumb pageName="Profile" />
+        <div className="animate-pulse">
+          <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-t-[10px]"></div>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-b-[10px]">
+            <div className="h-32 w-32 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto -mt-16"></div>
+            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mx-auto mt-4"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto mt-2"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading durumu
+  if (isLoading) {
+    return (
+      <div className="mx-auto w-full max-w-[970px]">
+        <Breadcrumb pageName="Profile" />
+        <div className="animate-pulse">
+          <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-t-[10px]"></div>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-b-[10px]">
+            <div className="h-32 w-32 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto -mt-16"></div>
+            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mx-auto mt-4"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto mt-2"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Giriş yapılmamışsa loading göster
+  if (!isAuthenticated) {
+    return (
+      <div className="mx-auto w-full max-w-[970px]">
+        <Breadcrumb pageName="Profile" />
+        <div className="bg-white dark:bg-gray-800 rounded-[10px] p-6 text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" />
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Yönlendiriliyor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div className="mx-auto w-full max-w-[970px]">
+        <Breadcrumb pageName="Profile" />
+        <div className="bg-white dark:bg-gray-800 rounded-[10px] p-6 text-center">
+          <p className="text-red-500 dark:text-red-400">{error || 'Profil bulunamadı'}</p>
+        </div>
+      </div>
+    );
+  }
 
   const loadProfile = async () => {
     try {
@@ -201,33 +278,6 @@ export default function Page() {
       month: 'long',
     });
   };
-
-  if (loading) {
-    return (
-      <div className="mx-auto w-full max-w-[970px]">
-        <Breadcrumb pageName="Profile" />
-        <div className="animate-pulse">
-          <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-t-[10px]"></div>
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-b-[10px]">
-            <div className="h-32 w-32 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto -mt-16"></div>
-            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mx-auto mt-4"></div>
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto mt-2"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !profile) {
-    return (
-      <div className="mx-auto w-full max-w-[970px]">
-        <Breadcrumb pageName="Profile" />
-        <div className="bg-white dark:bg-gray-800 rounded-[10px] p-6 text-center">
-          <p className="text-red-500 dark:text-red-400">{error || 'Profil bulunamadı'}</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="mx-auto w-full max-w-[970px]">

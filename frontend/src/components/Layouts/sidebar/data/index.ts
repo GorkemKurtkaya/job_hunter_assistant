@@ -1,6 +1,24 @@
 import * as Icons from "../icons";
 
-export const NAV_DATA = [
+interface SubMenuItem {
+  title: string;
+  url: string;
+  authRequired?: boolean;
+}
+
+interface MenuItem {
+  title: string;
+  icon: any;
+  url?: string;
+  items: SubMenuItem[];
+}
+
+interface NavSection {
+  label: string;
+  items: MenuItem[];
+}
+
+export const NAV_DATA: NavSection[] = [
   {
     label: "MAIN MENU",
     items: [
@@ -27,6 +45,12 @@ export const NAV_DATA = [
           {
             title: "Sign In",
             url: "/auth/sign-in",
+            authRequired: false, // Giriş yapılmamışsa göster
+          },
+          {
+            title: "Logout",
+            url: "/auth/logout",
+            authRequired: true, // Giriş yapılmışsa göster
           },
         ],
       },

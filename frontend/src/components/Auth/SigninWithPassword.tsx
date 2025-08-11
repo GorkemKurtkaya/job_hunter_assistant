@@ -6,9 +6,11 @@ import InputGroup from "../FormElements/InputGroup";
 import { Checkbox } from "../FormElements/checkbox";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from 'react-hot-toast';
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function SigninWithPassword() {
   const router = useRouter();
+  const { login } = useAuth();
   const [data, setData] = useState({
     email: "",
     password: "",
@@ -42,6 +44,11 @@ export default function SigninWithPassword() {
       });
 
       if (response.ok) {
+        const userData = await response.json();
+        
+        // AuthContext'i güncelle
+        login(userData.user || { id: '1', email: data.email });
+        
         toast.success('Giriş başarılı!');
         
         // Ana sayfaya yönlendir

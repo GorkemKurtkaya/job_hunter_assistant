@@ -26,14 +26,14 @@ export default function SignIn() {
               <Link className="mb-10 inline-block" href="/">
                 <Image
                   className="hidden dark:block"
-                  src={"/images/logo/logo.svg"}
+                  src={"/images/logo/dark.svg"}
                   alt="Logo"
                   width={176}
                   height={32}
                 />
                 <Image
                   className="dark:hidden"
-                  src={"/images/logo/logo-dark.svg"}
+                  src={"/images/logo/main.svg"}
                   alt="Logo"
                   width={176}
                   height={32}
@@ -54,7 +54,7 @@ export default function SignIn() {
 
               <div className="mt-31">
                 <Image
-                  src={"/images/grids/grid-02.svg"}
+                  src={"/images/logo/grid-02.svg"}
                   alt="Logo"
                   width={405}
                   height={325}

@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { LogOutIcon, SettingsIcon, UserIcon } from "./icons";
 import toast from 'react-hot-toast';
+import { useAuth } from "@/contexts/AuthContext";
 
 interface UserProfile {
   id: string;
@@ -32,6 +33,13 @@ export function UserInfo() {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const { logout, isAuthenticated, isInitialized } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  // Client-side mounting kontrolü
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Kullanıcı bilgilerini getir
   const fetchUserProfile = async () => {
@@ -70,9 +78,10 @@ export function UserInfo() {
       if (response.ok) {
         setUser(null);
         setIsOpen(false);
+        logout(); // AuthContext'ten logout yap
         toast.success('Başarıyla çıkış yapıldı!');
         // Ana sayfaya yönlendir
-        window.location.href = '/auth/sign-in';
+        window.location.href = '/';
       } else {
         toast.error('Çıkış yapılırken hata oluştu');
       }
@@ -84,8 +93,24 @@ export function UserInfo() {
 
   // Component mount olduğunda kullanıcı bilgilerini getir
   useEffect(() => {
-    fetchUserProfile();
-  }, []);
+    if (mounted && isInitialized && isAuthenticated) {
+      fetchUserProfile();
+    } else if (mounted && isInitialized) {
+      setLoading(false);
+    }
+  }, [mounted, isInitialized, isAuthenticated]);
+
+  // Server-side rendering sırasında loading göster
+  if (!mounted || !isInitialized) {
+    return (
+      <div className="flex items-center gap-3">
+        <div className="size-12 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
+        <div className="hidden lg:block">
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
+        </div>
+      </div>
+    );
+  }
 
   // Loading durumu
   if (loading) {
@@ -99,20 +124,31 @@ export function UserInfo() {
     );
   }
 
-  // Kullanıcı giriş yapmamışsa login butonu göster
-  if (!user) {
+  // Giriş yapılmamışsa giriş linki göster
+  if (!isAuthenticated) {
     return (
       <Link
         href="/auth/sign-in"
-        className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
+        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors"
       >
         <UserIcon />
-        <span>Giriş Yap</span>
+        <span className="hidden lg:inline">Giriş Yap</span>
       </Link>
     );
   }
 
   // Kullanıcı giriş yapmışsa user info göster
+  if (!user) {
+    return (
+      <div className="flex items-center gap-3">
+        <div className="size-12 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
+        <div className="hidden lg:block">
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Dropdown isOpen={isOpen} setIsOpen={setIsOpen}>
       <DropdownTrigger className="rounded align-middle outline-none ring-primary ring-offset-2 focus-visible:ring-1 dark:ring-offset-gray-dark">

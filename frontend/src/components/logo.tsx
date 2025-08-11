@@ -4,11 +4,11 @@ import Image from "next/image";
 
 export function Logo() {
   return (
-    <div className="relative h-10 max-w-[12rem]">
+    <div className="relative h-16 w-64">
       <Image
         src={logo}
         fill
-        className="dark:hidden"
+        className="dark:hidden object-contain"
         alt="JOB HUNTER logo"
         role="presentation"
         quality={100}
@@ -17,7 +17,7 @@ export function Logo() {
       <Image
         src={darkLogo}
         fill
-        className="hidden dark:block"
+        className="hidden dark:block object-contain"
         alt="JOB HUNTER logo"
         role="presentation"
         quality={100}
