@@ -49,13 +49,25 @@ jobs:
       working-directory: ./frontend
       run: npm run build
       
+    - name: Check build output
+      working-directory: ./frontend
+      run: |
+        echo "🔍 Checking build output..."
+        if [ -d ".next" ]; then
+          echo "✅ .next directory exists"
+          ls -la .next/
+        else
+          echo "❌ .next directory not found"
+          exit 1
+        fi
+        
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: frontend-build
         path: frontend/.next/
         retention-days: 7
-        if-no-files-found: warn
+        if-no-files-found: error
 
   deploy-preview:
     needs: test-and-build
