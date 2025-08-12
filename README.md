@@ -231,6 +231,26 @@ cd job_hunter_assistant_extension
 - **Profil**: Kullanıcı bilgileri ve ayarlar
 - **Başvurular**: Tüm iş başvurularının listesi
 
+### 🖼️ Web Uygulaması Görselleri
+
+#### Dashboard Sayfası
+![Dashboard](frontend/public/images/dashboard/dashboard-main.png)
+
+**Özellikler:**
+- İş başvuru istatistikleri ve grafikleri
+- Başvuru durumu takibi
+- Performans metrikleri ve analizler
+- Gerçek zamanlı güncellemeler
+
+#### Profil Sayfası
+![Profile](frontend/public/images/profile/profile-main.png)
+
+**Özellikler:**
+- Kullanıcı profil bilgileri
+- Deneyim ve eğitim geçmişi
+- Sertifika ve yetenek yönetimi
+- Sosyal medya entegrasyonu
+
 ### 🔌 Chrome Extension
 
 - **Veri Toplama**: LinkedIn'de otomatik veri çekme
@@ -248,6 +268,26 @@ cd job_hunter_assistant_extension
 - **Toggle Kontrolü**: Veri toplama özelliğini açıp kapatma
 - **Modern UI**: Glassmorphism tasarım ile şık arayüz
 - **API Entegrasyonu**: Backend'e otomatik veri gönderimi
+
+### 🖼️ Extension Görselleri
+
+#### Ana Popup Arayüzü
+![Extension Popup](frontend/public/images/extension/extension-popup.png)
+
+**Özellikler:**
+- Modern glassmorphism tasarım
+- Logo ve başlık
+- Veri toplama toggle switch'i
+- "Veriyi Göster" butonu
+
+#### Veri Görüntüleme Ekranı
+![Extension Data View](frontend/public/images/extension/extension-data-view.png)
+
+**Özellikler:**
+- Geri dönüş butonu
+- İş ilanı detayları
+- Şirket ve pozisyon bilgileri
+- Açıklama ve işe alım yapanlar
 
 ### 🔗 Gerekli Bağlantılar
 
@@ -423,6 +463,6 @@ Bu proje [ISC License](LICENSE) altında lisanslanmıştır.
 
 <div align="center">
   <p><strong>⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!</strong></p>
-  <p>Made with ❤️ by the Job Hunter Assistant Team</p>
+  <p>Made by Görkem Kurtkaya</p>
   <p><em>İş arayanların yanında, kariyer yolculuklarında!</em></p>
 </div>
