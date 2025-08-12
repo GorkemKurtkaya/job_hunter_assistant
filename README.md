@@ -234,7 +234,12 @@ cd job_hunter_assistant_extension
 ### 🖼️ Web Uygulaması Görselleri
 
 #### Dashboard Sayfası
-![Dashboard](frontend/public/images/dashboard/dashboard-main.png)
+| Tema | Görsel |
+|------|--------|
+| **Açık Tema** | <img width="800" height="400" alt="Screenshot_7" src="https://github.com/user-attachments/assets/0615f774-3ce3-476d-85b7-b7e362519a60" /> |
+| **Koyu Tema** | <img width="800" height="400" alt="Dashboard - Açık Tema" src="https://github.com/user-attachments/assets/09f4d8cf-b5a4-4f75-a45e-73a21b7add45" /> |
+
+
 
 **Özellikler:**
 - İş başvuru istatistikleri ve grafikleri
@@ -243,7 +248,10 @@ cd job_hunter_assistant_extension
 - Gerçek zamanlı güncellemeler
 
 #### Profil Sayfası
-![Profile](frontend/public/images/profile/profile-main.png)
+| Görsel |
+|--------|
+| <img width="800" height="400" alt="Profil Sayfası" src="https://github.com/user-attachments/assets/57d36496-6a87-46df-b48c-390103a9062e" /> |
+
 
 **Özellikler:**
 - Kullanıcı profil bilgileri
@@ -272,7 +280,8 @@ cd job_hunter_assistant_extension
 ### 🖼️ Extension Görselleri
 
 #### Ana Popup Arayüzü
-![Extension Popup](frontend/public/images/extension/extension-popup.png)
+<img width="319" height="292" alt="image" src="https://github.com/user-attachments/assets/cadf9c48-3ba2-4f2f-b9a4-23e441ea488c" />
+
 
 **Özellikler:**
 - Modern glassmorphism tasarım
@@ -281,7 +290,8 @@ cd job_hunter_assistant_extension
 - "Veriyi Göster" butonu
 
 #### Veri Görüntüleme Ekranı
-![Extension Data View](frontend/public/images/extension/extension-data-view.png)
+<img width="321" height="596" alt="Screenshot_10" src="https://github.com/user-attachments/assets/cd25a329-cfac-41c6-a908-ef7b49c21cb5" />
+
 
 **Özellikler:**
 - Geri dönüş butonu
