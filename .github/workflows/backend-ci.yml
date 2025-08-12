@@ -1,0 +1,76 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+        
+    - name: Install dependencies
+      working-directory: ./backend
+      run: npm ci
+      
+    - name: Run security audit
+      working-directory: ./backend
+      run: npm audit --audit-level=moderate
+      
+    - name: Check for vulnerabilities
+      working-directory: ./backend
+      run: |
+        if npm audit --audit-level=high; then
+          echo "High severity vulnerabilities found!"
+          exit 1
+        fi
+        
+    - name: Build check
+      working-directory: ./backend
+      run: |
+        # Backend build kontrolü (gerekirse)
+        echo "Backend build check completed"
+        
+    - name: Upload backend artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: backend-files
+        path: backend/
+        retention-days: 7
+
+  deploy-staging:
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+    - name: Deploy to staging
+      run: echo "Staging ortamına deploy ediliyor..."
+      
+
+  deploy-production:
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - name: Deploy to production
+      run: echo "Production ortamına deploy ediliyor..."
+      

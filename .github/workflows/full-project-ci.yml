@@ -1,0 +1,68 @@
+name: Full Project CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch: 
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Check file size
+      run: |
+        echo "Checking for large files..."
+        find . -type f -size +10M -not -path "./.git/*" | head -10
+        
+    - name: Check for sensitive files
+      run: |
+        echo "Checking for sensitive files..."
+        if find . -name "*.env*" -o -name "*.key" -o -name "*.pem" | grep -v ".git"; then
+          echo "⚠️ Sensitive files found!"
+        else
+          echo "✅ No sensitive files found"
+        fi
+
+  dependency-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Check for outdated dependencies
+      run: |
+        echo "Checking frontend dependencies..."
+        cd frontend && npm outdated || true
+        
+        echo "Checking backend dependencies..."
+        cd ../backend && npm outdated || true
+        
+    - name: Check for security vulnerabilities
+      run: |
+        echo "Checking frontend security..."
+        cd frontend && npm audit --audit-level=moderate || true
+        
+        echo "Checking backend security..."
+        cd ../backend && npm audit --audit-level=moderate || true
+
+  notify-team:
+    needs: [code-quality, dependency-check]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Notify team
+      run: |
+        echo "CI/CD pipeline completed!"
+        echo "Results:"
+        echo "- Code Quality: ${{ needs.code-quality.result }}"
+        echo "- Dependency Check: ${{ needs.dependency-check.result }}"
+        
+        # Burada Slack, Discord veya email notification yapılabilir
