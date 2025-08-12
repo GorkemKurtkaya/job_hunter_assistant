@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="frontend/public/images/android-chrome-512x512.png" alt="Job Hunter Assistant Logo" width="120" height="120">
+  <img src="frontend/public/images/android-chrome-512x512.png" alt="Job Hunter Assistant Logo" width="250" height="250">
   <h1>🚀 Job Hunter Assistant</h1>
   <p><strong>İş arayanlar için akıllı kariyer yönetim platformu</strong></p>
   
