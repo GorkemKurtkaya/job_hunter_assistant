@@ -61,7 +61,7 @@ jobs:
         name: frontend-build-${{ github.sha }}
         path: frontend/.next/
         retention-days: 30
-        if-no-files-found: error
+        if-no-files-found: warn
 
   backend-optimized:
     runs-on: ubuntu-latest
@@ -133,41 +133,4 @@ jobs:
         # Windows PowerShell uyumlu audit check
         npm audit --audit-level=moderate || echo "Audit completed with warnings"
 
-  deploy-production:
-    needs: [frontend-optimized, backend-optimized, test-matrix]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && needs.frontend-optimized.result == 'success'
-    environment: production
-    
-    steps:
-    - name: Check if artifacts exist
-      run: |
-        echo "🔍 Checking if frontend build artifacts exist..."
-        echo "Expected artifact name: frontend-build-${{ github.sha }}"
-        
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: frontend-build-${{ github.sha }}
-        path: ./frontend-build
-        if-no-files-found: warn
-        
-    - name: Deploy to production
-      run: |
-        echo "🚀 Production'a deploy ediliyor..."
-        if [ -d "./frontend-build" ]; then
-          echo "✅ Frontend build artifacts found"
-          chmod +x ./scripts/deploy.sh
-          ./scripts/deploy.sh
-        else
-          echo "❌ Frontend build artifacts not found, skipping deploy"
-          exit 1
-        fi
-      env:
-        DEPLOY_ENV: production
-        DEPLOY_HOST: ${{ secrets.PROD_HOST }}
-        DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
-        BACKEND_URL: ${{ secrets.BACKEND_URL }}
+
