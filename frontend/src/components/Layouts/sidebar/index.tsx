@@ -61,7 +61,7 @@ export function Sidebar() {
         });
       });
     });
-  }, [pathname]);
+  }, [pathname, expandedItems, toggleExpanded]);
 
   // Authentication durumuna göre menü öğelerini filtrele
   const filteredNavData = NAV_DATA.map(section => ({
