@@ -71,24 +71,12 @@ export function Sidebar() {
       if (item.title === "Dashboard" || item.title === "Profile") {
         return mounted && isInitialized && isAuthenticated;
       }
-      // Authentication her zaman göster
-      return true;
-    }).map(item => {
-      // Authentication menüsü için alt öğeleri filtrele
+      // Authentication sadece giriş yapılmamışsa göster
       if (item.title === "Authentication") {
-        return {
-          ...item,
-          items: item.items.filter(subItem => {
-            if (subItem.authRequired === true) {
-              return mounted && isInitialized && isAuthenticated; // Logout - giriş yapılmışsa göster
-            } else if (subItem.authRequired === false) {
-              return mounted && isInitialized && !isAuthenticated; // Sign In - giriş yapılmamışsa göster
-            }
-            return true;
-          })
-        };
+        return mounted && isInitialized && !isAuthenticated;
       }
-      return item;
+      // Diğer menü öğeleri her zaman göster
+      return true;
     })
   }));
 

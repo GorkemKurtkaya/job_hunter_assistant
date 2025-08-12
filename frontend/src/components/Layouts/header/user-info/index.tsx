@@ -44,7 +44,7 @@ export function UserInfo() {
   // Kullanıcı bilgilerini getir
   const fetchUserProfile = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/user/profile', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/profile`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -70,7 +70,7 @@ export function UserInfo() {
   // Logout fonksiyonu
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/auth/logout', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       });

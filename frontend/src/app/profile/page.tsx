@@ -198,12 +198,49 @@ export default function Page() {
     );
   }
 
-  if (error || !profile) {
+  // Loading durumu - profil yüklenirken
+  if (loading) {
+    return (
+      <div className="mx-auto w-full max-w-[970px]">
+        <Breadcrumb pageName="Profile" />
+        <div className="animate-pulse">
+          <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-t-[10px]"></div>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-b-[10px]">
+            <div className="h-32 w-32 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto -mt-16"></div>
+            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mx-auto mt-4"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto mt-2"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto mt-2"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto mt-2"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Sadece gerçek hata durumunda error göster
+  if (error && !loading) {
     return (
       <div className="mx-auto w-full max-w-[970px]">
         <Breadcrumb pageName="Profile" />
         <div className="bg-white dark:bg-gray-800 rounded-[10px] p-6 text-center">
-          <p className="text-red-500 dark:text-red-400">{error || 'Profil bulunamadı'}</p>
+          <p className="text-red-500 dark:text-red-400">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Profil yoksa loading göster (henüz yüklenmemiş olabilir)
+  if (!profile) {
+    return (
+      <div className="mx-auto w-full max-w-[970px]">
+        <Breadcrumb pageName="Profile" />
+        <div className="animate-pulse">
+          <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-t-[10px]"></div>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-b-[10px]">
+            <div className="h-32 w-32 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto -mt-16"></div>
+            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mx-auto mt-4"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto mt-2"></div>
+          </div>
         </div>
       </div>
     );

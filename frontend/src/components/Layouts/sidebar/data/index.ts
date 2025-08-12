@@ -20,14 +20,14 @@ interface NavSection {
 
 export const NAV_DATA: NavSection[] = [
   {
-    label: "MAIN MENU",
+    label: "",
     items: [
       {
         title: "Dashboard",
         icon: Icons.HomeIcon,
         items: [
           {
-            title: "Job Applications",
+            title: "Başvurularım",
             url: "/",
           },
         ],
@@ -45,13 +45,8 @@ export const NAV_DATA: NavSection[] = [
           {
             title: "Sign In",
             url: "/auth/sign-in",
-            authRequired: false, // Giriş yapılmamışsa göster
-          },
-          {
-            title: "Logout",
-            url: "/auth/logout",
-            authRequired: true, // Giriş yapılmışsa göster
-          },
+            authRequired: false, 
+          }
         ],
       },
     ],
