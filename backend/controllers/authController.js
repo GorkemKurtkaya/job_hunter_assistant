@@ -12,21 +12,26 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
     try {
-      const { email, password } = req.body;
-      const { user, session } = await loginUser(email, password);
+      const { email, password, rememberMe } = req.body;
+      const { user, session } = await loginUser(email, password, rememberMe);
       
+      const tokenMaxAge = rememberMe 
+        ? 30 * 24 * 60 * 60 * 1000  
+        : 24 * 60 * 60 * 1000;      
       
       res.cookie('token', session.access_token, {
         httpOnly: true, 
         sameSite: 'None', 
-        maxAge: 24 * 60 * 60 * 1000,
-        secure: true 
+        maxAge: tokenMaxAge,
+        secure: true,
+        path: '/'
       });
 
       res.cookie('userId', user.id, {
         sameSite: 'None', 
-        maxAge: 24 * 60 * 60 * 1000,
-        secure: true 
+        maxAge: tokenMaxAge,
+        secure: true,
+        path: '/'
       });
 
       res.status(200).json({ 
@@ -34,7 +39,8 @@ const login = async (req, res) => {
         user: {
           id: user.id,
           email: user.email
-        }
+        },
+        rememberMe: rememberMe || false
       });
     } catch (error) {
       res.status(400).json({ error: error.message });
@@ -45,9 +51,19 @@ const logout = async (req, res) => {
   try {
     await logoutUser();
     
+    res.clearCookie('token', {
+      httpOnly: true,
+      sameSite: 'None',
+      secure: true,
+      path: '/'
+    });
     
-    res.clearCookie('token');
-    res.clearCookie('userId');
+    res.clearCookie('userId', {
+      sameSite: 'None',
+      secure: true,
+      path: '/'
+    });
+    
     res.status(200).json({ message: "Çıkış başarılı" });
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -89,8 +105,17 @@ const checkUser = async (req, res) => {
     console.error('Check user error:', error);
 
     if (error.message.includes("token") || error.message.includes("session")) {
-      res.clearCookie('token');
-      res.clearCookie('userId');
+      res.clearCookie('token', {
+        httpOnly: true,
+        sameSite: 'None',
+        secure: true,
+        path: '/'
+      });
+      res.clearCookie('userId', {
+        sameSite: 'None',
+        secure: true,
+        path: '/'
+      });
     }
     res.status(401).json({ error: error.message });
   }

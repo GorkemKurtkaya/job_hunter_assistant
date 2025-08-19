@@ -19,8 +19,14 @@ const registerUser = async (full_name, email, password) => {
     return user;
   };
 
-const loginUser = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+const loginUser = async (email, password, rememberMe = false) => {
+    const { data, error } = await supabase.auth.signInWithPassword({ 
+      email, 
+      password,
+      options: {
+        persistSession: true
+      }
+    });
   
     if (error) throw new Error(error.message);
   
@@ -39,7 +45,6 @@ const logoutUser = async () => {
 
 const checkAdmin = async (userId) => {
   try {
-    console.log('Checking admin for userId:', userId); // Debug için
 
     const { data, error } = await supabase
       .from("users")
@@ -48,14 +53,10 @@ const checkAdmin = async (userId) => {
       .single();
 
     if (error) {
-      console.error('Admin check error:', error); // Debug için
       throw new Error(error.message);
     }
-
-    console.log('Admin check result:', data); // Debug için
     return data?.role === "admin";
   } catch (error) {
-    console.error('Admin check caught error:', error); // Debug için
     throw error;
   }
 };

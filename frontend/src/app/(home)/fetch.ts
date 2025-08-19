@@ -1,7 +1,6 @@
-// İş başvuruları API endpoint'leri
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL + '/api';
 
-// TypeScript tipleri
+
 interface JobApplication {
   id: string;
   user_id: string | null;
@@ -12,10 +11,10 @@ interface JobApplication {
   created_at: string;
   updated_at: string;
   status?: string;
-  analysis_percentage?: number; // Yeni column
+  analysis_percentage?: number; 
 }
 
-// AI analiz için interface
+
 interface AIAnalysisResponse {
   success: boolean;
   percentage: number;
@@ -30,12 +29,11 @@ export async function getJobApplications(): Promise<JobApplication[]> {
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include', // Cookie'leri gönder
+      credentials: 'include',
     });
 
     if (!response.ok) {
       if (response.status === 401) {
-        // Token geçersiz, login sayfasına yönlendir
         window.location.href = '/auth/sign-in';
         return [];
       }
@@ -57,7 +55,7 @@ export async function updateJobApplication(id: string, updateData: Partial<JobAp
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include', // Cookie'leri gönder
+      credentials: 'include', 
       body: JSON.stringify(updateData),
     });
 
@@ -83,7 +81,7 @@ export async function deleteJobApplication(id: string): Promise<boolean> {
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include', // Cookie'leri gönder
+      credentials: 'include', 
     });
 
     if (!response.ok) {
@@ -101,7 +99,7 @@ export async function deleteJobApplication(id: string): Promise<boolean> {
   }
 }
 
-// İstatistikler için özet veri
+
 export async function getJobApplicationsStats() {
   try {
     const applications = await getJobApplications();
@@ -128,22 +126,31 @@ export async function getJobApplicationsStats() {
   }
 }
 
-// Cookie'den userId çek
-function getUserIdFromCookie(): string | null {
-  const cookies = document.cookie.split(';');
-  for (const cookie of cookies) {
-    const [name, value] = cookie.trim().split('=');
-    if (name === 'userId') {
-      return value;
+async function getUserIdFromCookie(): Promise<string | null> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/check-auth`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.user?.id || null;
     }
+    return null;
+  } catch (error) {
+    console.error('UserId alma hatası:', error);
+    return null;
   }
-  return null;
 }
 
-// AI analiz fonksiyonu
+
 export async function analyzeJobApplication(jobId: string): Promise<AIAnalysisResponse> {
   try {
-    const userId = getUserIdFromCookie();
+    const userId = await getUserIdFromCookie();
     if (!userId) {
       throw new Error('Kullanıcı ID bulunamadı');
     }

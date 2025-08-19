@@ -31,27 +31,29 @@ export default function SigninWithPassword() {
     setLoading(true);
 
     try {
+      const loginData = {
+        email: data.email,
+        password: data.password,
+        rememberMe: data.remember,
+      };
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // Cookie'leri kabul et
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-        }),
+        credentials: 'include',
+        body: JSON.stringify(loginData),
       });
 
       if (response.ok) {
         const userData = await response.json();
         
-        // AuthContext'i güncelle
+
         login(userData.user || { id: '1', email: data.email });
         
         toast.success('Giriş başarılı!');
         
-        // Ana sayfaya yönlendir
         setTimeout(() => {
           router.push('/');
         }, 1000);
