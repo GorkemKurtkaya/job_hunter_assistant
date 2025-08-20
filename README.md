@@ -99,23 +99,181 @@ Geliştirme konusunda topluluğun yardımına ihtiyacım var! Bu projeye sadece 
 
 ## 🏗️ Mimari
 
+### 🏢 Genel Sistem Mimarisi
+
+Job Hunter Assistant, **3 ana bileşenden** oluşan modern bir full-stack web uygulamasıdır:
+
 ```
-job_hunter_assistant/
-├── 🖥️  Backend (Node.js + Express)
-│   ├── Controllers (İş mantığı)
-│   ├── Services (Veri işleme)
-│   ├── Middleware (Güvenlik)
-│   └── Routes (API endpoints)
-├── 🎨  Frontend (Next.js 14 + TypeScript)
-│   ├── Components (UI bileşenleri)
-│   ├── Contexts (State yönetimi)
-│   ├── Hooks (Custom hooks)
-│   └── Pages (Sayfa bileşenleri)
-└── 🔌  Chrome Extension
-    ├── Content Scripts (LinkedIn entegrasyonu)
-    ├── Popup Interface (Kullanıcı arayüzü)
-    └── Background Scripts (Veri işleme)
+┌─────────────────────────────────────────────────────────────────┐
+│                    🌐 Web Uygulaması                           │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
+│  │   🎨 Frontend   │  │   🖥️ Backend    │  │   🔌 Extension │ │
+│  │  (Next.js 14)   │  │  (Node.js/Exp)  │  │   (Chrome)     │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+                    ┌─────────────────────────┐
+                    │    🗄️ Supabase DB      │
+                    │    (PostgreSQL)        │
+                    └─────────────────────────┘
 ```
+
+### 🖥️ Backend Mimarisi (Node.js + Express)
+
+**Katmanlı Mimari (Layered Architecture)** kullanılarak tasarlanmıştır:
+
+```
+backend/
+├── 📁 config/                    # Konfigürasyon dosyaları
+│   ├── supabase.js              # Supabase bağlantı ayarları
+│   └── database.js              # Veritabanı konfigürasyonu
+├── 📁 controllers/               # İş mantığı katmanı
+│   ├── aiController.js          # AI servisleri kontrolü
+│   ├── authController.js        # Kimlik doğrulama işlemleri
+│   ├── jobApplicationController.js # İş başvuru yönetimi
+│   └── userController.js        # Kullanıcı profil yönetimi
+├── 📁 services/                  # Veri işleme katmanı
+│   ├── aiService.js             # Google Gemini AI entegrasyonu
+│   ├── authService.js           # JWT token yönetimi
+│   ├── jobApplicationService.js # Başvuru veri işlemleri
+│   └── userService.js           # Kullanıcı veri işlemleri
+├── 📁 middleware/                # Ara yazılım katmanı
+│   └── authMiddleware.js        # Kimlik doğrulama kontrolü
+├── 📁 routes/                    # API endpoint tanımları
+│   ├── aiRoute.js               # AI servis endpoint'leri
+│   ├── authRoute.js             # Kimlik doğrulama endpoint'leri
+│   ├── jobApplicationRoute.js   # Başvuru endpoint'leri
+│   └── userRoute.js             # Kullanıcı endpoint'leri
+├── 📁 utils/                     # Yardımcı fonksiyonlar
+├── app.js                        # Ana uygulama dosyası
+├── package.json                  # Bağımlılık yönetimi
+└── Dockerfile                    # Container yapılandırması
+```
+
+**Backend Teknoloji Stack'i:**
+- **Runtime**: Node.js 18+
+- **Framework**: Express.js
+- **Database**: Supabase (PostgreSQL)
+- **Authentication**: JWT + HTTP-only cookies
+- **AI Integration**: Google Gemini AI API
+- **Validation**: Joi schema validation
+- **CORS**: Cross-origin resource sharing
+
+### 🎨 Frontend Mimarisi (Next.js 14 + TypeScript)
+
+**App Router** ve **Component-Based Architecture** kullanılarak tasarlanmıştır:
+
+```
+frontend/
+├── 📁 public/                    # Statik dosyalar
+│   ├── images/                   # Görsel varlıklar
+│   ├── favicon.ico              # Site ikonu
+│   └── js/                      # JavaScript dosyaları
+├── 📁 src/
+│   ├── 📁 app/                   # Next.js App Router
+│   │   ├── (home)/              # Ana sayfa route grubu
+│   │   │   ├── _components/     # Sayfa özel bileşenleri
+│   │   │   ├── fetch.ts         # API çağrıları
+│   │   │   └── page.tsx         # Ana sayfa bileşeni
+│   │   ├── auth/                # Kimlik doğrulama sayfaları
+│   │   │   └── sign-in/         # Giriş sayfası
+│   │   ├── profile/             # Profil yönetimi
+│   │   │   ├── _components/     # Profil bileşenleri
+│   │   │   ├── fetch.ts         # Profil API çağrıları
+│   │   │   ├── layout.tsx       # Profil layout'u
+│   │   │   └── page.tsx         # Profil sayfası
+│   │   ├── layout.tsx           # Ana layout
+│   │   ├── providers.tsx        # Context provider'ları
+│   │   └── favicon.ico          # Site ikonu
+│   ├── 📁 components/            # Yeniden kullanılabilir bileşenler
+│   │   ├── Auth/                # Kimlik doğrulama bileşenleri
+│   │   ├── Breadcrumbs/         # Breadcrumb navigasyonu
+│   │   ├── FormElements/        # Form bileşenleri
+│   │   ├── Layouts/             # Layout bileşenleri
+│   │   │   ├── header/          # Üst menü
+│   │   │   ├── sidebar/         # Yan menü
+│   │   │   └── showcase-section.tsx # Vitrin bölümü
+│   │   ├── ui/                  # Temel UI bileşenleri
+│   │   └── ui-elements/         # Gelişmiş UI bileşenleri
+│   ├── 📁 contexts/             # React Context API
+│   │   └── AuthContext.tsx      # Kimlik doğrulama durumu
+│   ├── 📁 hooks/                # Custom React hooks
+│   ├── 📁 lib/                  # Yardımcı kütüphaneler
+│   ├── 📁 services/             # API servisleri
+│   ├── 📁 types/                # TypeScript tip tanımları
+│   ├── 📁 utils/                # Yardımcı fonksiyonlar
+│   ├── 📁 css/                  # Stil dosyaları
+│   └── 📁 fonts/                # Font dosyaları
+├── tailwind.config.ts            # Tailwind CSS konfigürasyonu
+├── tsconfig.json                 # TypeScript konfigürasyonu
+├── next.config.mjs               # Next.js konfigürasyonu
+└── package.json                  # Bağımlılık yönetimi
+```
+
+**Frontend Teknoloji Stack'i:**
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **State Management**: React Context API
+
+
+### 🔌 Chrome Extension Mimarisi
+
+**Manifest V3** standardında tasarlanmış modern Chrome extension:
+
+```
+extension/
+├── 📁 manifest.json              # Extension manifest dosyası
+├── 📁 popup/                     # Popup arayüzü
+│   ├── popup.html               # Ana popup HTML'i
+│   ├── popup.css                # Popup stilleri
+│   └── popup.js                 # Popup işlevselliği
+├── 📁 content-scripts/           # Sayfa içi script'ler
+│   └── content.js               # LinkedIn DOM manipülasyonu
+├── 📁 background/                # Arka plan script'leri
+│   └── background.js            # Veri işleme ve API iletişimi
+├── 📁 assets/                    # Görsel varlıklar
+│   ├── icons/                   # Extension ikonları
+│   └── logo.png                 # Logo
+└── 📁 utils/                     # Yardımcı fonksiyonlar
+```
+
+**Extension Teknoloji Stack'i:**
+- **Manifest**: Manifest V3
+- **Content Scripts**: LinkedIn DOM manipulation
+- **Popup Interface**: HTML + CSS + JavaScript
+- **Storage**: Chrome Storage API
+- **Communication**: Fetch API ile backend
+
+### 🔄 Veri Akışı Mimarisi
+
+```
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   Chrome    │    │   Frontend  │    │   Backend   │
+│  Extension  │    │  (Next.js)  │    │ (Node.js)   │
+└──────┬──────┘    └──────┬──────┘    └──────┬──────┘
+       │                  │                  │
+       │ LinkedIn'den     │ Kullanıcı        │ API
+       │ veri toplama     │ arayüzü          │ işlemleri
+       │                  │                  │
+       └──────────────────┼──────────────────┘
+                          │
+                          ▼
+                   ┌─────────────┐
+                   │  Supabase   │
+                   │ PostgreSQL  │
+                   └─────────────┘
+```
+
+### 🏗️ Mimari Prensipleri
+
+1. **Separation of Concerns**: Her katmanın belirli bir sorumluluğu var
+2. **Single Responsibility**: Her bileşen tek bir işi yapıyor
+3. **Dependency Injection**: Bağımlılıklar dışarıdan enjekte ediliyor
+4. **RESTful API**: Standart HTTP metodları kullanılıyor
+5. **Type Safety**: TypeScript ile tip güvenliği sağlanıyor
+6. **Scalability**: Modüler yapı ile ölçeklenebilirlik
 
 ---
 
