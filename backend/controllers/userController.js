@@ -11,15 +11,29 @@ import {
   updateExperience,
   deleteExperience
 } from "../services/userService.js";
+import { supabase } from "../config/supabase.js";
+
+// Token'dan user ID al
+const getUserIdFromToken = async (req) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  
+  if (!token) {
+    throw new Error("Token bulunamadı");
+  }
+
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+  
+  if (error || !user) {
+    throw new Error("Geçersiz token");
+  }
+
+  return user.id;
+};
 
 // Kullanıcı profilini getir
 const getProfile = async (req, res) => {
   try {
-    const userId = req.cookies.userId;
-    if (!userId) {
-      return res.status(401).json({ error: "Kullanıcı kimliği bulunamadı" });
-    }
-
+    const userId = await getUserIdFromToken(req);
     const profile = await getUserProfile(userId);
     res.status(200).json({ profile });
   } catch (error) {
@@ -30,11 +44,7 @@ const getProfile = async (req, res) => {
 // Kullanıcı profilini güncelle
 const updateProfile = async (req, res) => {
   try {
-    const userId = req.cookies.userId;
-    if (!userId) {
-      return res.status(401).json({ error: "Kullanıcı kimliği bulunamadı" });
-    }
-
+    const userId = await getUserIdFromToken(req);
     const profileData = req.body;
     const updatedProfile = await updateUserProfile(userId, profileData);
     res.status(200).json({ 
@@ -49,11 +59,7 @@ const updateProfile = async (req, res) => {
 // Sertifika ekle
 const addCert = async (req, res) => {
   try {
-    const userId = req.cookies.userId;
-    if (!userId) {
-      return res.status(401).json({ error: "Kullanıcı kimliği bulunamadı" });
-    }
-
+    const userId = await getUserIdFromToken(req);
     const certificationData = req.body;
     const newCertification = await addCertification(userId, certificationData);
     res.status(201).json({ 
@@ -96,11 +102,7 @@ const deleteCert = async (req, res) => {
 // Eğitim ekle
 const addEdu = async (req, res) => {
   try {
-    const userId = req.cookies.userId;
-    if (!userId) {
-      return res.status(401).json({ error: "Kullanıcı kimliği bulunamadı" });
-    }
-
+    const userId = await getUserIdFromToken(req);
     const educationData = req.body;
     const newEducation = await addEducation(userId, educationData);
     res.status(201).json({ 
@@ -143,11 +145,7 @@ const deleteEdu = async (req, res) => {
 // İş deneyimi ekle
 const addExp = async (req, res) => {
   try {
-    const userId = req.cookies.userId;
-    if (!userId) {
-      return res.status(401).json({ error: "Kullanıcı kimliği bulunamadı" });
-    }
-
+    const userId = await getUserIdFromToken(req);
     const experienceData = req.body;
     const newExperience = await addExperience(userId, experienceData);
     res.status(201).json({ 

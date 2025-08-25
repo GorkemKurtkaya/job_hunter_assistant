@@ -1,6 +1,19 @@
 // Profile API endpoint'leri
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL + '/api';
 
+const getStoredToken = () => {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('access_token');
+};
+
+const getAuthHeaders = () => {
+  const token = getStoredToken();
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` })
+  };
+};
+
 // TypeScript tipleri
 interface Experience {
   id: string;
@@ -141,10 +154,7 @@ export async function getUserProfile(): Promise<UserProfile | null> {
   try {
     const response = await fetch(`${API_BASE_URL}/user/profile`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include', // Cookie'leri gönder
+      headers: getAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -168,10 +178,7 @@ export async function updateUserProfile(updateData: UpdateProfileData): Promise<
   try {
     const response = await fetch(`${API_BASE_URL}/user/profile`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include', // Cookie'leri gönder
+      headers: getAuthHeaders(),
       body: JSON.stringify(updateData),
     });
 
@@ -197,10 +204,7 @@ export async function createExperience(data: CreateExperienceData): Promise<Expe
   try {
     const response = await fetch(`${API_BASE_URL}/user/experiences`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     });
 
@@ -223,10 +227,7 @@ export async function updateExperience(id: string, data: UpdateExperienceData): 
   try {
     const response = await fetch(`${API_BASE_URL}/user/experiences/${id}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     });
 
@@ -250,7 +251,7 @@ export async function deleteExperience(id: string): Promise<boolean> {
   try {
     const response = await fetch(`${API_BASE_URL}/user/experiences/${id}`, {
       method: 'DELETE',
-      credentials: 'include',
+      headers: getAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -273,10 +274,7 @@ export async function createEducation(data: CreateEducationData): Promise<Educat
   try {
     const response = await fetch(`${API_BASE_URL}/user/educations`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     });
 
@@ -299,10 +297,7 @@ export async function updateEducation(id: string, data: UpdateEducationData): Pr
   try {
     const response = await fetch(`${API_BASE_URL}/user/educations/${id}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     });
 
@@ -326,7 +321,7 @@ export async function deleteEducation(id: string): Promise<boolean> {
   try {
     const response = await fetch(`${API_BASE_URL}/user/educations/${id}`, {
       method: 'DELETE',
-      credentials: 'include',
+      headers: getAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -349,10 +344,7 @@ export async function createCertification(data: CreateCertificationData): Promis
   try {
     const response = await fetch(`${API_BASE_URL}/user/certifications`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     });
 
@@ -375,10 +367,7 @@ export async function updateCertification(id: string, data: UpdateCertificationD
   try {
     const response = await fetch(`${API_BASE_URL}/user/certifications/${id}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     });
 
@@ -402,7 +391,7 @@ export async function deleteCertification(id: string): Promise<boolean> {
   try {
     const response = await fetch(`${API_BASE_URL}/user/certifications/${id}`, {
       method: 'DELETE',
-      credentials: 'include',
+      headers: getAuthHeaders(),
     });
 
     if (!response.ok) {

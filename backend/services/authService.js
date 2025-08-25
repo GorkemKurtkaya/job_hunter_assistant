@@ -1,7 +1,15 @@
 import {supabase} from "../config/supabase.js";
 
 const registerUser = async (full_name, email, password) => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({ 
+      email, 
+      password,
+      options: {
+        data: {
+          full_name: full_name
+        }
+      }
+    });
   
     if (error) throw new Error(error.message);
   
@@ -9,7 +17,7 @@ const registerUser = async (full_name, email, password) => {
   
     if (!user) throw new Error("User registration failed");
   
-
+    // Users tablosuna da kaydet
     const { error: insertError } = await supabase.from("users").insert([
       { id: user.id, email, full_name },
     ]);
@@ -24,7 +32,7 @@ const loginUser = async (email, password, rememberMe = false) => {
       email, 
       password,
       options: {
-        persistSession: true
+        persistSession: rememberMe
       }
     });
   
@@ -43,9 +51,8 @@ const logoutUser = async () => {
   if (error) throw new Error(error.message);
 };
 
-const checkAdmin = async (userId) => {
+const checkAdminService = async (userId) => {
   try {
-
     const { data, error } = await supabase
       .from("users")
       .select("role")
@@ -61,14 +68,15 @@ const checkAdmin = async (userId) => {
   }
 };
 
-
 const checkAuth = async (token) => {
   if (!token) throw new Error("Token bulunamadı");
   
+  // Supabase client'ı token ile güncelle
   const { data: { user }, error } = await supabase.auth.getUser(token);
+  
   if (error) throw new Error(error.message);
   
   return user;
 };
 
-export { registerUser, loginUser, logoutUser, checkAdmin, checkAuth };
+export { registerUser, loginUser, logoutUser, checkAdminService, checkAuth };

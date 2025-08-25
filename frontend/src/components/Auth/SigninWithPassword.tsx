@@ -7,6 +7,7 @@ import { Checkbox } from "../FormElements/checkbox";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from 'react-hot-toast';
 import { useAuth } from "@/contexts/AuthContext";
+import { loginUser } from "@/services/auth";
 
 export default function SigninWithPassword() {
   const router = useRouter();
@@ -37,33 +38,18 @@ export default function SigninWithPassword() {
         rememberMe: data.remember,
       };
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(loginData),
-      });
-
-      if (response.ok) {
-        const userData = await response.json();
-        
-
-        login(userData.user || { id: '1', email: data.email });
-        
-        toast.success('Giriş başarılı!');
-        
-        setTimeout(() => {
-          router.push('/');
-        }, 1000);
-      } else {
-        const errorData = await response.json();
-        toast.error(errorData.message || 'Giriş başarısız!');
-      }
-    } catch (error) {
+      const userData = await loginUser(loginData);
+      
+      login(userData.user || { id: '1', email: data.email });
+      
+      toast.success('Giriş başarılı!');
+      
+      setTimeout(() => {
+        router.push('/');
+      }, 1000);
+    } catch (error: any) {
       console.error('Login error:', error);
-      toast.error('Bağlantı hatası!');
+      toast.error(error.message || 'Giriş başarısız!');
     } finally {
       setLoading(false);
     }

@@ -10,12 +10,12 @@ export default function Home() {
   const { isAuthenticated, isLoading, isInitialized } = useAuth();
   const [mounted, setMounted] = useState(false);
 
-  // Client-side mounting kontrolü
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Server-side rendering sırasında loading göster
+
   if (!mounted || !isInitialized) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">

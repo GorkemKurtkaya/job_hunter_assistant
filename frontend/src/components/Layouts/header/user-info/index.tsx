@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import { LogOutIcon, SettingsIcon, UserIcon } from "./icons";
 import toast from 'react-hot-toast';
 import { useAuth } from "@/contexts/AuthContext";
+import { logoutUser, getUserProfile } from "@/services/auth";
 
 interface UserProfile {
   id: string;
@@ -33,7 +34,7 @@ export function UserInfo() {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const { logout, isAuthenticated, isInitialized } = useAuth();
+  const { logout, isAuthenticated, isInitialized, user: authUser } = useAuth();
   const [mounted, setMounted] = useState(false);
 
   // Client-side mounting kontrolü
@@ -44,21 +45,8 @@ export function UserInfo() {
   // Kullanıcı bilgilerini getir
   const fetchUserProfile = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/profile`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.profile);
-      } else if (response.status === 401) {
-        // Token geçersiz veya yok
-        setUser(null);
-      }
+      const profileData = await getUserProfile();
+      setUser(profileData);
     } catch (error) {
       console.error('Kullanıcı bilgileri getirilemedi:', error);
       setUser(null);
@@ -70,21 +58,13 @@ export function UserInfo() {
   // Logout fonksiyonu
   const handleLogout = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-
-      if (response.ok) {
-        setUser(null);
-        setIsOpen(false);
-        logout(); // AuthContext'ten logout yap
-        toast.success('Başarıyla çıkış yapıldı!');
-        // Ana sayfaya yönlendir
-        window.location.href = '/';
-      } else {
-        toast.error('Çıkış yapılırken hata oluştu');
-      }
+      await logoutUser();
+      setUser(null);
+      setIsOpen(false);
+      logout(); // AuthContext'ten logout yap
+      toast.success('Başarıyla çıkış yapıldı!');
+      // Ana sayfaya yönlendir
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout hatası:', error);
       toast.error('Çıkış yapılırken hata oluştu');

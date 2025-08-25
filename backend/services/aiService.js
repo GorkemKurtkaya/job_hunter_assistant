@@ -36,15 +36,22 @@ async function analyzeJobFit(userId, jobId) {
     const percentageMatch = analysisResult.match(/Yüzdelik: %(\d+)/);
     const percentage = percentageMatch ? parseInt(percentageMatch[1]) : 0;
 
+    // Feedback kısmını çıkar
+    const feedbackMatch = analysisResult.match(/FEEDBACK:(.*?)(?=Yüzdelik:|$)/s);
+    const feedback = feedbackMatch ? feedbackMatch[1].trim() : '';
+
     // Sonucu job_applications tablosuna kaydet
     const { error: updateError } = await supabase
       .from("job_applications")
-      .update({ analysis_percentage: percentage })
+      .update({ 
+        analysis_percentage: percentage,
+        analysis_feedback: feedback 
+      })
       .eq("id", jobId);
 
     if (updateError) throw new Error(`Analiz sonucu kaydedilemedi: ${updateError.message}`);
 
-    return { percentage, analysis_result: analysisResult };
+    return { percentage, analysis_result: analysisResult, feedback };
   } catch (error) {
     throw new Error(`AI analizi hatası: ${error.message}`);
   }
@@ -58,7 +65,7 @@ async function performAIAnalysis(profile, jobDescription) {
       temperature: 0,
       topP: 1,
       topK: 1,
-      maxOutputTokens: 64,
+      maxOutputTokens: 1024,
     },
   });
 
@@ -71,7 +78,7 @@ async function performAIAnalysis(profile, jobDescription) {
   İŞ İLANI AÇIKLAMASI:
   ${jobDescription}
   
-  AMAÇ: 0-100 arasında bir uyum yüzdesi üret.
+  AMAÇ: 0-100 arasında bir uyum yüzdesi üret ve detaylı feedback ver.
   
   PUANLAMA ALGORİTMASI (kesin kurallar):
   1) TEKNOLOJİ UYUMU (40 puan)
@@ -97,10 +104,31 @@ async function performAIAnalysis(profile, jobDescription) {
   KURALLAR:
   - Veri yoksa tahmin etme; eksik alanlar 0 puan sayılır.
   - İyimser tamamlama yapma; sadece veriye dayalı puan ver.
-  - Ara adımları açıklama, sadece sonuç ver.
-  - Nihai puan = (1)+(2)+(3)+(4), 0-100 aralığına kırp, en yakın 5'e yuvarla.
+  - Her kategori için puanı ve eksiklikleri belirt.
   
-  ÇIKTI FORMATı (tek satır, başka metin ekleme):
+  ÇIKTI FORMATı:
+  
+  FEEDBACK:
+  TEKNOLOJİ UYUMU (X/40 puan):
+  - Eşleşen teknolojiler: [liste]
+  - Eksik teknolojiler: [liste]
+  - Öneriler: [geliştirilebilir alanlar]
+  
+  DENEYİM (X/30 puan):
+  - Mevcut deneyim: [yıl ve tür]
+  - İstenen deneyim: [ilan gereksinimleri]
+  - Eksiklikler: [varsa]
+  
+  EĞİTİM (X/20 puan):
+  - Mevcut eğitim: [seviye ve alan]
+  - Puan açıklaması: [neden bu puan]
+  
+  GENEL BECERİLER (X/10 puan):
+  - Mevcut beceriler: [liste]
+  - Eksik beceriler: [liste]
+  
+  TOPLAM PUAN: X/100
+  
   Yüzdelik: %NN
   `;
 

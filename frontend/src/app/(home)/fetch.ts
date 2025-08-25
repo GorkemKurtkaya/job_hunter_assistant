@@ -12,6 +12,7 @@ interface JobApplication {
   updated_at: string;
   status?: string;
   analysis_percentage?: number; 
+  analysis_feedback?: string;
 }
 
 
@@ -24,16 +25,25 @@ interface AIAnalysisResponse {
 
 export async function getJobApplications(): Promise<JobApplication[]> {
   try {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      window.location.href = '/auth/sign-in';
+      return [];
+    }
+
     const response = await fetch(`${API_BASE_URL}/job-applications`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
-      credentials: 'include',
     });
 
     if (!response.ok) {
       if (response.status === 401) {
+        // Token geçersizse localStorage'ı temizle
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
         window.location.href = '/auth/sign-in';
         return [];
       }
@@ -50,17 +60,26 @@ export async function getJobApplications(): Promise<JobApplication[]> {
 
 export async function updateJobApplication(id: string, updateData: Partial<JobApplication>) {
   try {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      window.location.href = '/auth/sign-in';
+      return;
+    }
+
     const response = await fetch(`${API_BASE_URL}/job-applications/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
-      credentials: 'include', 
       body: JSON.stringify(updateData),
     });
 
     if (!response.ok) {
       if (response.status === 401) {
+        // Token geçersizse localStorage'ı temizle
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
         window.location.href = '/auth/sign-in';
         return;
       }
@@ -76,16 +95,25 @@ export async function updateJobApplication(id: string, updateData: Partial<JobAp
 
 export async function deleteJobApplication(id: string): Promise<boolean> {
   try {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      window.location.href = '/auth/sign-in';
+      return false;
+    }
+
     const response = await fetch(`${API_BASE_URL}/job-applications/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
-      credentials: 'include', 
     });
 
     if (!response.ok) {
       if (response.status === 401) {
+        // Token geçersizse localStorage'ı temizle
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
         window.location.href = '/auth/sign-in';
         return false;
       }
@@ -128,12 +156,17 @@ export async function getJobApplicationsStats() {
 
 async function getUserIdFromCookie(): Promise<string | null> {
   try {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      return null;
+    }
+
     const response = await fetch(`${API_BASE_URL}/auth/check-auth`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
-      credentials: 'include',
     });
 
     if (response.ok) {
@@ -155,17 +188,25 @@ export async function analyzeJobApplication(jobId: string): Promise<AIAnalysisRe
       throw new Error('Kullanıcı ID bulunamadı');
     }
 
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      throw new Error('Oturum süresi doldu');
+    }
+
     const response = await fetch(`${API_BASE_URL}/ai/analyze`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
-      credentials: 'include',
       body: JSON.stringify({ userId, jobId }),
     });
 
     if (!response.ok) {
       if (response.status === 401) {
+        // Token geçersizse localStorage'ı temizle
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
         window.location.href = '/auth/sign-in';
         throw new Error('Oturum süresi doldu');
       }

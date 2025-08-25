@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { checkUserAuth, logoutUser as logoutUserService } from '@/services/auth';
 
 interface User {
   id: string;
@@ -27,16 +28,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/check-auth`, {
-        credentials: 'include',
-      });
-      
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData.user);
-      } else {
-        setUser(null);
-      }
+      const userData = await checkUserAuth();
+      setUser(userData);
     } catch (error) {
       console.error('Auth check error:', error);
       setUser(null);
@@ -52,15 +45,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      // Backend'den logout yap
-      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-      setUser(null);
+      await logoutUserService();
     } catch (error) {
       console.error('Logout error:', error);
-      // Hata olsa bile local state'i temizle
+    } finally {
+      // Her durumda local state'i temizle
       setUser(null);
     }
   };
